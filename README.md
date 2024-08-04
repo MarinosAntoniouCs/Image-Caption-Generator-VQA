@@ -61,11 +61,12 @@ The UI is divided into several sections:
 
 ## Screenshots
 
-[Include screenshots of the application interface here]
+![image](https://github.com/user-attachments/assets/d1bcb9b8-8bca-44f8-9783-77b115776efd)
+
 
 ## License
 
-[Specify the license under which the project is distributed]
+This project is proprietary software and cannot be used, modified, or distributed without permission from the author.
 
 ## Acknowledgements
 
@@ -80,4 +81,6 @@ The UI is divided into several sections:
 
 ## Contributing
 
-Feel free to open issues and submit pull requests if you have any suggestions or improvements.
+This project does not accept contributions.
+
+Feel free to open issues if you have any suggestions or improvements.
