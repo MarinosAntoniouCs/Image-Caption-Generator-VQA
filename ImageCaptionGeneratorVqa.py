@@ -212,7 +212,7 @@ class MainWindow(QMainWindow):
         self.caption_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)  # Always show vertical scroll bar
         self.caption_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # Show horizontal scroll bar as needed
         self.caption_area.setStyleSheet(
-            "border: 2px solid #6a0dad; border-radius: 5px; padding: 5px; "
+            "border-radius: 5px; padding: 5px; "
             "background-color: #f0f0f0; color: black;"
         )  # Purple border, light gray background, black text for caption area
         lower_left_layout.addWidget(self.caption_area)
@@ -235,7 +235,7 @@ class MainWindow(QMainWindow):
         self.input_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)  # Always show vertical scroll bar
         self.input_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # Show horizontal scroll bar as needed
         self.input_area.setStyleSheet(
-            "border: 2px solid #6a0dad; border-radius: 5px; padding: 5px; "
+            "border-radius: 5px; padding: 5px; "
             "background-color: #f0f0f0; color: black;"
         )  # Purple border, light gray background, black text for input area
         self.input_area.textChanged.connect(self.update_clear_button_state)  # Connect textChanged signal
@@ -275,7 +275,7 @@ class MainWindow(QMainWindow):
         self.output_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)  # Always show vertical scroll bar
         self.output_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # Show horizontal scroll bar as needed
         self.output_area.setStyleSheet(
-            "border: 2px solid #6a0dad; border-radius: 5px; padding: 5px; "
+            "border-radius: 5px; padding: 5px; "
             "background-color: #f0f0f0; color: black;"
         )  # Purple border, light gray background, black text for output area
         right_layout.addWidget(self.output_area)
@@ -370,9 +370,11 @@ class MainWindow(QMainWindow):
             self.image_uploaded = True
             self.update_clear_image_button_state()
 
-            # Disable the generate button and show status message in caption area
+            # Disable the generate button and clear image button, show status message in caption area
             self.generate_button.setEnabled(False)
             self.generate_button.setStyleSheet(DISABLED_STYLE)
+            self.clear_image_button.setEnabled(False)
+            self.clear_image_button.setStyleSheet(DISABLED_STYLE)
             self.caption_area.setText("Caption is being generated...")
             self.caption_area.setStyleSheet(STATUS_STYLE)
 
@@ -395,6 +397,10 @@ class MainWindow(QMainWindow):
         self.generate_button.setEnabled(True)
         self.generate_button.setStyleSheet(BUTTON_STYLE_NORMAL)
 
+        # Enable the clear image button after generating caption
+        self.clear_image_button.setEnabled(True)
+        self.clear_image_button.setStyleSheet(BUTTON_STYLE_NORMAL)
+
         # Reset the output area style to default
         self.output_area.clear()
         self.output_area.setStyleSheet("background-color: #f0f0f0; color: black;")  # Reset to default white background
@@ -414,6 +420,10 @@ class MainWindow(QMainWindow):
         self.output_area.setText("Answer is being generated...")
         self.output_area.setStyleSheet(STATUS_STYLE)
 
+        # Disable the clear button while generating answer
+        self.clear_button.setEnabled(False)
+        self.clear_button.setStyleSheet(DISABLED_STYLE)
+
         # Get the question from input area
         question = self.input_area.toPlainText().strip()
         if question:
@@ -425,11 +435,15 @@ class MainWindow(QMainWindow):
             self.output_area.setText("")
             self.output_area.setStyleSheet("background-color: #f0f0f0; color: black;")  # Reset to default style
 
+
     def on_answer_generated(self, answer):
         self.output_area.setText(answer)
         self.output_area.setStyleSheet("background-color: #f0f0f0; color: black;")  # Reset to default style
 
-
+        # Enable the clear button after generating answer
+        self.clear_button.setEnabled(True)
+        self.clear_button.setStyleSheet(BUTTON_STYLE_NORMAL)
+        
     def clear_image(self):
         # Clear the image label and caption area
         self.image_label.clear()
@@ -444,9 +458,6 @@ class MainWindow(QMainWindow):
         self.update_clear_button_state()
 
     def add_session(self):
-        print("Adding session...")
-        print(f"Current session index before adding: {self.current_session_index}")
-
         # Save the current session before adding a new one
         self.sessions[self.current_session_index] = {
             'image': self.image_label.pixmap(),
@@ -454,7 +465,6 @@ class MainWindow(QMainWindow):
             'question': self.input_area.toPlainText(),
             'answer': self.output_area.toPlainText()
         }
-        print(f"Session {self.current_session_index} saved.")
 
         # Add new session and set it as the current session
         self.sessions.append({
@@ -464,14 +474,11 @@ class MainWindow(QMainWindow):
             'answer': ''
         })
         self.current_session_index += 1  # Increment index to point to the new session
-        print(f"New session added. Current session index: {self.current_session_index}")
 
         # Load the new session
         self.load_session(self.current_session_index)
         self.update_navigation_buttons()
 
-        print(f"Sessions: {self.sessions}")
-        print(f"Current session index after adding: {self.current_session_index}")
 
     def previous_session(self):
         if self.current_session_index > 0:
@@ -486,6 +493,7 @@ class MainWindow(QMainWindow):
             self.load_session(self.current_session_index)
             self.update_navigation_buttons()
 
+
     def next_session(self):
         if self.current_session_index < len(self.sessions) - 1:
             # Save current session before switching
@@ -499,6 +507,7 @@ class MainWindow(QMainWindow):
             self.load_session(self.current_session_index)
             self.update_navigation_buttons()
 
+
     def load_session(self, index):
         session = self.sessions[index]
         if session['image']:
@@ -511,6 +520,7 @@ class MainWindow(QMainWindow):
         self.image_uploaded = session['image'] is not None
         self.update_clear_image_button_state()
         self.update_clear_button_state()
+
 
     def update_clear_image_button_state(self):
         if self.image_label.pixmap() and not self.image_label.pixmap().isNull():
@@ -544,6 +554,7 @@ class MainWindow(QMainWindow):
         else:
             self.next_button.setEnabled(False)
             self.next_button.setStyleSheet(DISABLED_STYLE)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
